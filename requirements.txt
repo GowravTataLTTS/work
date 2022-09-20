@@ -1,0 +1,7 @@
+flask
+pymongo
+Flask-HTTPAuth
+Flask-JWT-Extended
+redis
+nose
+coverage
