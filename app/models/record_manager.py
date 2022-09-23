@@ -1,11 +1,15 @@
 from pymongo import MongoClient
 import json
 from bson import json_util
+import requests
 from app.models.exceptions import RecordExistenceError, RecordInExistenceError, \
     InvalidPayloadException
 
 
 class MongoService:
+
+    def __init__(self):
+        self.get_url = "http://127.0.0.1:5000/check/{}"
 
     @staticmethod
     def create_connection():
@@ -30,16 +34,16 @@ class MongoService:
             if isinstance(payload, list):
                 for record in payload:
                     self.validate_payload(payload=record)
-                    record_status = self.fetch_record(id=record['Name'])
-                    if isinstance(record_status, dict):
+                    url = self.get_url.format(record["Name"])
+                    response = requests.get(url=url)
+                    if response.status_code == 200:
                         raise RecordExistenceError(f'Record {record} already exists')
                 connection.insert_many(payload)
-                for record in payload:
-                    del record['_id']
             else:
                 self.validate_payload(payload)
-                record_status = self.fetch_record(id=payload["Name"])
-                if isinstance(record_status, dict):
+                url = self.get_url.format(payload["Name"])
+                response = requests.get(url=url)
+                if response.status_code == 200:
                     msg = f'Record {payload["Name"]} already exists'
                     raise RecordExistenceError(msg)
                 connection.insert_one(payload)
@@ -53,25 +57,21 @@ class MongoService:
             msg = f"Encountered exception while creating record. Error:{e}"
             raise Exception(msg)
 
-    def fetch_record(self, id=None):
+    def fetch_record(self, id=None) -> list or dict:
         """
             this method fetches the records that are present in the database
             :param id: record that is to be fetched
             :return: list of all the records or an individual record that is passed
         """
         connection = self.create_connection()
-        all_records = list()
-        for record in connection.find():
-            record.pop("_id")
-            all_records.append(record)
         if id:
-            for record in all_records:
-                if record['Name'] == id:
-                    return json.loads(json_util.dumps(record))
+            record = connection.find_one({"Name": f"{id}"})
+            if record:
+                return json.loads(json_util.dumps(record))
             msg = f"No record with id {id}"
-            return msg
+            raise RecordInExistenceError(msg)
         else:
-            return json_util.dumps(all_records)
+            return json_util.dumps(connection.find())
 
     def update_record(self, payload: dict) -> dict:
         """
@@ -81,14 +81,14 @@ class MongoService:
         """
         if not payload["Name"]:
             raise KeyError("Name is required in the payload")
-        record_status = self.fetch_record(id=payload["Name"])
-        if "No Record" in record_status:
-            raise RecordExistenceError(f"No record named {payload['Name']}")
         if len(payload) < 2:
             msg = "Requires one or more attributes to update the payload"
             raise InvalidPayloadException(msg)
-        if "No record" in self.fetch_record(id=payload["Name"]):
-            raise RecordInExistenceError(f"No record {payload['Name']} in the database")
+        url = self.get_url.format(payload["Name"])
+        response = requests.get(url=url)
+        if response.status_code == 404:
+            msg = f'Record {payload["Name"]} doesnt exists'
+            raise RecordInExistenceError(msg)
         connection = self.create_connection()
         filters = {"Name": payload["Name"]}
         new_values = {"$set": payload}
@@ -103,8 +103,11 @@ class MongoService:
             :return: string consisting of the deleted status
         """
         connection = self.create_connection()
-        record = self.fetch_record(id=id)
-        if "No record" not in record:
+        url = self.get_url.format(id)
+        response = requests.get(url=url)
+        if response.status_code == 200:
+            record = json.loads(response.text)
+            del record["_id"]
             connection.delete_one(record)
             msg = {"Message": f"Deleted record {id}"}
             return msg

@@ -1,5 +1,4 @@
 import unittest
-import json
 from app.views.router import app
 
 
@@ -51,7 +50,7 @@ class TestRouter(unittest.TestCase):
         token_generated = self.app.get("/login", auth=("admin", "password"))
         json_data = token_generated.json['access_token']
         response = self.app.get('/check/abc', headers={"Authorization": f"Bearer {json_data}"})
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(404, response.status_code)
 
     def test_07_update_record_success(self):
         token_generated = self.app.get("/login", auth=("admin", "password"))
