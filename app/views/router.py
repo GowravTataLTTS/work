@@ -6,6 +6,8 @@ from app.models.exceptions import RecordExistenceError, RecordInExistenceError, 
     InvalidPayloadException
 from flask_httpauth import HTTPBasicAuth
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager
+from flasgger import Swagger
+from flasgger.utils import swag_from
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "mynameisbond"
@@ -15,6 +17,12 @@ auth = HTTPBasicAuth()
 jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
+
+swagger = Swagger(app)
+
+location = r"/home/gowrav/Desktop/assignment/record_creation_service/record_creation_service/swagger/api_docs.yaml"
+
+hb_location = r"/home/gowrav/Desktop/assignment/record_creation_service/record_creation_service/swagger/heartbeat.yaml"
 
 
 @auth.verify_password
@@ -32,8 +40,15 @@ def login():
     return jsonify(access_token=access_token)
 
 
+@app.route("/heartbeat")
+@swag_from(hb_location)
+def hello_world():
+    return "I'm up", 200
+
+
 @app.route('/check/<id>', methods=['GET', 'DELETE'])
 @app.route('/check', methods=['POST', 'GET', 'PUT'])
+@swag_from(location)
 # @jwt_required()
 def route_v1(id=None):
     try:

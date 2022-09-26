@@ -1,0 +1,24 @@
+servers:
+  - url: http://127.0.0.1:5000/check/<id>
+summary: "CRUD Operations on MongoDB"
+produces:
+  - "application/json"
+parameters:
+  - in: "path"
+    name: "id"
+    description: ID of record
+  - in: "body"
+    name: "payload"
+    description: "Accepts a input dictionary of orders"
+
+responses:
+  200:
+    description: "Success"
+  400:
+    description: "Bad Request"
+  404:
+    description: "Record doesn't exist"
+  409:
+    description: "Record Already Exist"
+  500:
+    description: "Internal Server Error"
