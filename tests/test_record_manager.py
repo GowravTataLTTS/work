@@ -24,7 +24,6 @@ class TestRecordManager(unittest.TestCase):
         expected_result = {
             'message': "Successfully inserted data {'Location': 'Mumbai', 'Name': 'Test_Gowrav', 'Organisation': "
                        "'LTTS'} into the database"}
-
         self.assertEqual(expected_result, response)
 
     @mock.patch('pymongo.collection.Collection.insert_one')
