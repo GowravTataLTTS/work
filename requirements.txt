@@ -5,6 +5,7 @@ pymongo
 requests
 Flask-JWT-Extended
 swagger-ui-py
-Werkzeug==0.16
 nose
 coverage
+MarkupSafe
+

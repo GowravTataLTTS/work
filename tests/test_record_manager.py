@@ -69,9 +69,7 @@ class TestRecordManager(unittest.TestCase):
         with self.assertRaises(RecordInExistenceError):
             self.mongo_service.update_record(payload=payload)
 
-    @mock.patch('app.models.record_manager.MongoService.validate_payload')
-    def test_08_delete_record_success(self, mock_validate_payload):
-        mock_validate_payload.return_value = "Valid Payload"
+    def test_08_delete_record_success(self):
         response = self.mongo_service.delete_record(id=self.payload["Name"])
         expected_result = {'Message': 'Deleted record Test_Gowrav'}
         self.assertEqual(expected_result, response)

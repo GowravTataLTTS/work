@@ -3,30 +3,32 @@ info:
   title: Record Management Service
   version: 3.0.1
 servers:
-- url: http://127.0.0.1:5000/
+  - url: http://127.0.0.1:5000/
 paths:
   /heartbeat:
     get:
-       tags:
-       - Diagnostic
-       summary: Checks the health of the service
-       operationId: Checks the health of the service
-       responses:
-            200:
-              description: Success
+      tags:
+        - Diagnostic
+      summary: Checks the health of the service
+      operationId: Checks the health of the service
+      responses:
+        200:
+          description: Success
   /token:
     get:
-        tags:
+      tags:
         - CRUD Operation on MongoDB
-        summary: Fetches a token for login
-        operationId: Fetches a token for login
-        responses:
-          200:
-            description: Success
+      summary: Fetches a token for login
+      operationId: Fetches a token for login
+      responses:
+        200:
+          description: Success
   /record:
     post:
+      security:
+        - bearerAuth: [ ]
       tags:
-      - CRUD Operation on MongoDB
+        - CRUD Operation on MongoDB
       summary: Create a new record in the database
       operationId: Create a new record in the database
       requestBody:
@@ -37,7 +39,7 @@ paths:
               properties:
                 order:
                   type: "object"
-              example: { "Name": "Gowrav Tata","Organisation": "LTTS","Location":"Hyderabad" }
+              example: { "Name": "Gowrav Tata","Organisation": "LTTS","Location": "Hyderabad" }
         required: true
       responses:
         200:
@@ -51,7 +53,7 @@ paths:
           description: Internal Server Error
     put:
       tags:
-      - CRUD Operation on MongoDB
+        - CRUD Operation on MongoDB
       summary: Update a record in the database
       operationId: Update a record in the database
       requestBody:
@@ -62,7 +64,7 @@ paths:
               properties:
                 order:
                   type: "object"
-              example: { "Name": "Gowrav Tata","Organisation": "LTI","Location":"Hyderabad" }
+              example: { "Name": "Gowrav Tata","Organisation": "LTI","Location": "Hyderabad" }
         required: true
       responses:
         200:
@@ -74,10 +76,12 @@ paths:
         500:
           description: Internal Server Error
     get:
+      security:
+        - bearerAuth: [ ]
       tags:
-      - CRUD Operation on MongoDB
+        - CRUD Operation on MongoDB
       summary: Fetches all the records in the database
-      operationId:  Fetches all the records in the database
+      operationId: Fetches all the records in the database
       responses:
         200:
           description: Success
@@ -85,10 +89,12 @@ paths:
           description: Internal Server Error
   /record/{id}:
     get:
+      security:
+        - bearerAuth: [ ]
       tags:
-      - CRUD Operation on MongoDB
+        - CRUD Operation on MongoDB
       summary: Fetches a record in the database
-      operationId:  Fetches a record in the database
+      operationId: Fetches a record in the database
       parameters:
         - name: id
           in: path
@@ -104,8 +110,10 @@ paths:
         500:
           description: Internal Server Error
     delete:
+      security:
+        - bearerAuth: [ ]
       tags:
-      - CRUD Operation on MongoDB
+        - CRUD Operation on MongoDB
       summary: Deletes a record in the database
       operationId: Deletes a record in the database
       parameters:
@@ -122,3 +130,9 @@ paths:
           description: Record doesn't exist
         500:
           description: Internal Server Error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

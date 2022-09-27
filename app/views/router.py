@@ -1,22 +1,33 @@
 import http
 import redis
+from datetime import timedelta
 from flask import Flask, request, make_response, jsonify
 from app.models.record_manager import MongoService
 from app.models.exceptions import RecordExistenceError, RecordInExistenceError, \
     InvalidPayloadException
 from flask_httpauth import HTTPBasicAuth
-from flask_jwt_extended import create_access_token, jwt_required, JWTManager
 from swagger_ui import api_doc
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
 
+ACCESS_EXPIRES = timedelta(hours=1)
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "mynameisbond"
+app.config["JWT_SECRET_KEY"] = "super-secret"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
-auth = HTTPBasicAuth()
+
+jwt_redis_blocklist = redis.StrictRedis(
+    host="localhost", port=6379, db=0, decode_responses=True
+)
 
 api_doc(app, config_path='app/views/swagger.yaml', url_prefix='/docs', title='API doc')
 
+auth = HTTPBasicAuth()
 
+
+# Method to check the credentials
 @auth.verify_password
 def verify(username, password):
     credentials = {"admin": "password"}
@@ -25,6 +36,7 @@ def verify(username, password):
     return credentials.get(username) == password
 
 
+# API to get the access token
 @app.route("/token", methods=["GET"])
 @auth.login_required
 def login():
@@ -40,7 +52,7 @@ def router():
 
 @app.route('/record/<id>', methods=['GET', 'DELETE'])
 @app.route('/record', methods=['POST', 'GET', 'PUT'])
-# @jwt_required()
+@jwt_required()
 def route_v1(id=None):
     try:
         mongo = MongoService()
