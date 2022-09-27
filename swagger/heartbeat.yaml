@@ -1,9 +1,0 @@
-summary: "API to check the health"
-description: "This is a simple API to check Health."
-produces:
-  - "application/json"
-responses:
-  200:
-    description: "Success"
-  500:
-    description: "Internal Server Error"

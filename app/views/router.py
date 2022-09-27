@@ -6,23 +6,15 @@ from app.models.exceptions import RecordExistenceError, RecordInExistenceError, 
     InvalidPayloadException
 from flask_httpauth import HTTPBasicAuth
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager
-from flasgger import Swagger
-from flasgger.utils import swag_from
+from swagger_ui import api_doc
+
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "mynameisbond"
 jwt = JWTManager(app)
 auth = HTTPBasicAuth()
 
-jwt_redis_blocklist = redis.StrictRedis(
-    host="localhost", port=6379, db=0, decode_responses=True
-)
-
-swagger = Swagger(app)
-
-location = r"/home/gowrav/Desktop/assignment/record_creation_service/record_creation_service/swagger/api_docs.yaml"
-
-hb_location = r"/home/gowrav/Desktop/assignment/record_creation_service/record_creation_service/swagger/heartbeat.yaml"
+api_doc(app, config_path='./swagger.yaml', url_prefix='/docs', title='API doc')
 
 
 @auth.verify_password
@@ -33,7 +25,7 @@ def verify(username, password):
     return credentials.get(username) == password
 
 
-@app.route("/login", methods=["GET"])
+@app.route("/token", methods=["GET"])
 @auth.login_required
 def login():
     access_token = create_access_token(identity="example_user")
@@ -41,14 +33,13 @@ def login():
 
 
 @app.route("/heartbeat")
-@swag_from(hb_location)
-def hello_world():
-    return "I'm up", 200
+@auth.login_required
+def router():
+    return "I'm Up", 200
 
 
-@app.route('/check/<id>', methods=['GET', 'DELETE'])
-@app.route('/check', methods=['POST', 'GET', 'PUT'])
-@swag_from(location)
+@app.route('/record/<id>', methods=['GET', 'DELETE'])
+@app.route('/record', methods=['POST', 'GET', 'PUT'])
 # @jwt_required()
 def route_v1(id=None):
     try:

@@ -52,30 +52,16 @@ class TestRecordManager(unittest.TestCase):
             self.mongo_service.create_record(payload=self.payload)
 
     @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_05_invalid_payload(self, mock_fetch_record):
-        mock_fetch_record.return_value = {"No record ": ""}
-        self.payload.update({'Name': 'Abhi'})
-        with self.assertRaises(RecordExistenceError):
-            self.mongo_service.create_record(payload=self.payload)
-
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_06_record_inexistence_error(self, mock_fetch_record):
+    def test_05_record_inexistence_error(self, mock_fetch_record):
         mock_fetch_record.return_value = "No record "
         self.payload.update({'Name': 123})
         with self.assertRaises(RecordInExistenceError):
             self.mongo_service.delete_record(id=self.payload['Name'])
 
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_07_invalid_payload(self, mock_fetch_record):
-        mock_fetch_record.return_value = {"message": "Record doesn't exist"}
-        self.payload.update({'Name': 'Abhi'})
-        with self.assertRaises(RecordExistenceError):
-            self.mongo_service.create_record(payload=[self.payload])
-
     @mock.patch('pymongo.collection.Collection.update_one')
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_08_update_record_success(self, mock_fetch_record, mock_update_one):
-        mock_fetch_record.return_value = "there is a record"
+    @mock.patch('requests.get')
+    def test_06_update_record_success(self, mock_get, mock_update_one):
+        mock_get.return_value.status_code = 200
         mock_update_one.return_value = {'Message': "Record {'Name': 'Test_Gowrav'} updated in the database"}
         del self.payload["Location"]
         self.payload.update({"Organisation": "LT"})
@@ -84,19 +70,17 @@ class TestRecordManager(unittest.TestCase):
         self.assertEqual(expected_response, response)
 
     @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_09_update_record_fails_due_to_no_record_exists_error(self, mock_fetch_record):
+    def test_07_update_record_fails_due_to_no_record_exists_error(self, mock_fetch_record):
         mock_fetch_record.return_value = "No record present in the database"
         payload = {"Name": 123, "Location": "Hyderadad"}
         with self.assertRaises(RecordInExistenceError):
             self.mongo_service.update_record(payload=payload)
 
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
+    @mock.patch('requests.get')
     @mock.patch('app.models.record_manager.MongoService.validate_payload')
-    def test_10_delete_record_success(self, mock_validate_payload, mock_fetch_record):
-        mock_fetch_record.return_value = {'_id': '1234', 'Location': 'Mumbai', 'Name': 'Test_Gowrav',
-                                          'Organisation': 'LTTS'}
+    def test_08_delete_record_success(self, mock_validate_payload, mock_get):
+        mock_get.return_value.status_code = 404
         mock_validate_payload.return_value = "Valid Payload"
         response = self.mongo_service.delete_record(id=self.payload["Name"])
         expected_result = {'Message': 'Deleted record Test_Gowrav'}
         self.assertEqual(expected_result, response)
-

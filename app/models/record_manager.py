@@ -9,7 +9,7 @@ from app.models.exceptions import RecordExistenceError, RecordInExistenceError, 
 class MongoService:
 
     def __init__(self):
-        self.get_url = "http://127.0.0.1:5000/check/{}"
+        self.get_url = "http://127.0.0.1:5000/record/{}"
 
     @staticmethod
     def create_connection():

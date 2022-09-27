@@ -1,0 +1,124 @@
+openapi: 3.0.1
+info:
+  title: Record Management Service
+  version: 3.0.1
+servers:
+- url: http://127.0.0.1:5000/
+paths:
+  /heartbeat:
+    get:
+       tags:
+       - Diagnostic
+       summary: Checks the health of the service
+       operationId: Checks the health of the service
+       responses:
+            200:
+              description: Success
+  /token:
+    get:
+        tags:
+        - CRUD Operation on MongoDB
+        summary: Fetches a token for login
+        operationId: Fetches a token for login
+        responses:
+          200:
+            description: Success
+  /record:
+    post:
+      tags:
+      - CRUD Operation on MongoDB
+      summary: Create a new record in the database
+      operationId: Create a new record in the database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                order:
+                  type: "object"
+              example: { "Name": "Gowrav Tata","Organisation": "LTTS","Location":"Hyderabad" }
+        required: true
+      responses:
+        200:
+          description: Success
+
+        400:
+          description: Bad Request
+        409:
+          description: Record Already Exists
+        500:
+          description: Internal Server Error
+    put:
+      tags:
+      - CRUD Operation on MongoDB
+      summary: Update a record in the database
+      operationId: Update a record in the database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                order:
+                  type: "object"
+              example: { "Name": "Gowrav Tata","Organisation": "LTI","Location":"Hyderabad" }
+        required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Record doesn't exist
+        500:
+          description: Internal Server Error
+    get:
+      tags:
+      - CRUD Operation on MongoDB
+      summary: Fetches all the records in the database
+      operationId:  Fetches all the records in the database
+      responses:
+        200:
+          description: Success
+        500:
+          description: Internal Server Error
+  /record/{id}:
+    get:
+      tags:
+      - CRUD Operation on MongoDB
+      summary: Fetches a record in the database
+      operationId:  Fetches a record in the database
+      parameters:
+        - name: id
+          in: path
+          description: ID of record to be fetched
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+        404:
+          description: Record doesn't exist
+        500:
+          description: Internal Server Error
+    delete:
+      tags:
+      - CRUD Operation on MongoDB
+      summary: Deletes a record in the database
+      operationId: Deletes a record in the database
+      parameters:
+        - name: id
+          in: path
+          description: ID of pet to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+        404:
+          description: Record doesn't exist
+        500:
+          description: Internal Server Error
