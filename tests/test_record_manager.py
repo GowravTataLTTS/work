@@ -15,10 +15,8 @@ class TestRecordManager(unittest.TestCase):
         }
 
     @mock.patch('pymongo.collection.Collection.insert_one')
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
     @mock.patch('app.models.record_manager.MongoService.validate_payload')
-    def test_01_create_new_single_record_success(self, mock_validate_payload, mock_fetch_record, mock_find):
-        mock_fetch_record.return_value = "there is a record"
+    def test_01_create_new_single_record_success(self, mock_validate_payload,  mock_find):
         mock_validate_payload.return_value = "Valid Payload"
         mock_find.return_value = {'_id': '1234', 'Location': 'Mumbai', 'Name': 'Test_Gowrav',
                                   'Organisation': 'LTTS'}
@@ -51,9 +49,7 @@ class TestRecordManager(unittest.TestCase):
         with assert_raises(Exception):
             self.mongo_service.create_record(payload=self.payload)
 
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_05_record_inexistence_error(self, mock_fetch_record):
-        mock_fetch_record.return_value = "No record "
+    def test_05_record_inexistence_error(self):
         self.payload.update({'Name': 123})
         with self.assertRaises(RecordInExistenceError):
             self.mongo_service.delete_record(id=self.payload['Name'])
@@ -69,9 +65,7 @@ class TestRecordManager(unittest.TestCase):
         expected_response = {'Message': "Record {'Name': 'Test_Gowrav'} updated in the database"}
         self.assertEqual(expected_response, response)
 
-    @mock.patch('app.models.record_manager.MongoService.fetch_record')
-    def test_07_update_record_fails_due_to_no_record_exists_error(self, mock_fetch_record):
-        mock_fetch_record.return_value = "No record present in the database"
+    def test_07_update_record_fails_due_to_no_record_exists_error(self):
         payload = {"Name": 123, "Location": "Hyderadad"}
         with self.assertRaises(RecordInExistenceError):
             self.mongo_service.update_record(payload=payload)
