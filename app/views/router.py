@@ -14,7 +14,7 @@ app.config["JWT_SECRET_KEY"] = "mynameisbond"
 jwt = JWTManager(app)
 auth = HTTPBasicAuth()
 
-api_doc(app, config_path='./swagger.yaml', url_prefix='/docs', title='API doc')
+api_doc(app, config_path='app/views/swagger.yaml', url_prefix='/docs', title='API doc')
 
 
 @auth.verify_password
