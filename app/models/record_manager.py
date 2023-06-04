@@ -14,11 +14,8 @@ class MongoService:
     @staticmethod
     def create_connection():
         try:
-            conn = MongoClient(host='test_mongodb',
-                         port=27017, 
-                         username='root', 
-                         password='pass',
-                        authSource="admin")
+            conn = MongoClient(host='mongo',
+                         port=27017)
             # creating a database
             db = conn.database
             # creating a collection under the database

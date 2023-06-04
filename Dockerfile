@@ -1,16 +1,14 @@
-FROM python:alpine
+# Use the official Python image as the base
+FROM python:3.9
 
-# defining the directory
+# Set the working directory in the container
 WORKDIR /app
-#copy the contents to the working dir
-COPY . .
 
-#running all the dependencies
-RUN pip install --upgrade pip
+# Copy the app folder to the working directory
+COPY app/ .
 
+# Install the required dependencies
 RUN pip install -r requirements.txt
 
-EXPOSE 5000
-
-# command to start the container
-CMD ["python","run.py"]
+# Set the entrypoint command
+CMD ["python", "run.py"]
