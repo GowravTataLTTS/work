@@ -1,5 +1,5 @@
 # Use the official Python image as the base
-FROM python:3.9
+FROM python:alpine
 
 # Set the working directory in the container
 WORKDIR .

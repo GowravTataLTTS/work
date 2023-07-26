@@ -2,8 +2,8 @@ openapi: 3.0.1
 info:
   title: Record Management Service
   version: 3.0.1
-servers:
-  - url: http://127.0.0.1:5000/
+#servers:
+#  - url: http://127.0.0.1:5000/
 paths:
   /heartbeat:
     get:
