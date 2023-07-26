@@ -2,13 +2,16 @@
 FROM python:3.9
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR .
 
 # Copy the app folder to the working directory
-COPY app/ .
+COPY . .
 
 # Install the required dependencies
 RUN pip install -r requirements.txt
+
+# Expose port 5000
+EXPOSE 5000
 
 # Set the entrypoint command
 CMD ["python", "run.py"]
